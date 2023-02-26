@@ -1,0 +1,57 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<LangVersion>10.0</LangVersion>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<id>PackZero.Configuration</id>
+		<Title>PackZero.Configuration</Title>
+		<Description>extension for the IConfiguration, appsettings.json mapping easily used class object rely on EnvironmentName</Description>
+		<Summary></Summary>
+		<Authors>Mustafa Salih ASLIM;</Authors>
+		<PackageProjectUrl>https://github.com/msx752/PackZero.Configuration</PackageProjectUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<RepositoryUrl>https://github.com/msx752/PackZero.Configuration</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<EnableNETAnalyzers>True</EnableNETAnalyzers>
+		<SignAssembly>False</SignAssembly>
+		<PackageIcon>wfc2.png</PackageIcon>
+		<PackageTags>dotnet core net6 net7 IConfiguration extension appsettings</PackageTags>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+		<IncludeSymbols>True</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<DebugType>embedded</DebugType>
+		<PublishRepositoryUrl>True</PublishRepositoryUrl>
+		<ContinuousIntegrationBuild>True</ContinuousIntegrationBuild>
+		<EmbedUntrackedSources>True</EmbedUntrackedSources>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\..\LICENSE">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\..\wfc2.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+</Project>
