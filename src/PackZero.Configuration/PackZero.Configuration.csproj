@@ -11,7 +11,7 @@
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<id>PackZero.Configuration</id>
 		<Title>PackZero.Configuration</Title>
-		<Description>extension for the IConfiguration, appsettings.json mapping easily used class object rely on EnvironmentName</Description>
+		<Description>extension for the IConfiguration, appsettings.json mapping easily used class object rely on EnvironmentName (especially for the ConsoleApp)</Description>
 		<Summary></Summary>
 		<Authors>Mustafa Salih ASLIM;</Authors>
 		<PackageProjectUrl>https://github.com/msx752/PackZero.Configuration</PackageProjectUrl>
