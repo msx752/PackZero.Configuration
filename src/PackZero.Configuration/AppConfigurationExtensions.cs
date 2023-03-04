@@ -33,8 +33,15 @@ public static class AppConfigurationExtensions
     public static IServiceCollection AddAppZeroConfiguration(this IServiceCollection services, params Type[] appSettingSectionTypes)
     {
         foreach (var appSettingType in appSettingSectionTypes.Distinct())
+        {
             services.AddSingleton(appSettingType, (provider) =>
-                provider.GetRequiredService<IConfiguration>().GetSection(appSettingType.Name).Get(appSettingType));
+            {
+                var sectionObject = provider.GetRequiredService<IConfiguration>().GetSection(appSettingType.Name).Get(appSettingType);
+                ArgumentNullException.ThrowIfNull(sectionObject, $"Configuration.GetSection('{appSettingType.Name}') returns null");
+
+                return sectionObject;
+            });
+        }
 
         return services;
     }
