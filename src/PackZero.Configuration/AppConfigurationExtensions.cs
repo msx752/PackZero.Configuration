@@ -11,7 +11,7 @@ public static class AppConfigurationExtensions
     {
         return hostBuilder.ConfigureAppConfiguration((hostBuilderContext, configurationBuilder) =>
         {
-            var removedDefaultEnvironment = configurationBuilder.Sources.FirstOrDefault(f => f is Microsoft.Extensions.Configuration.Json.JsonConfigurationSource cnf
+            var removedDefaultEnvironment = configurationBuilder.Sources.FirstOrDefault(f => f is JsonConfigurationSource cnf
                 && cnf.Path != null
                 && cnf.Path.Contains("appsettings.Production.json")
                 );
