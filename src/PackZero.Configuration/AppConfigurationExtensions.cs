@@ -7,32 +7,41 @@ public static class AppConfigurationExtensions
         return hostBuilder.UseAppZeroConfiguration(null);
     }
 
-    public static IHostBuilder UseAppZeroConfiguration(this IHostBuilder hostBuilder, Action<HostBuilderContext, IConfigurationBuilder> configureDelegate)
+    public static IHostBuilder UseAppZeroConfiguration(this IHostBuilder hostBuilder, Action<HostBuilderContext, IConfigurationBuilder> configureDelegate, string appSettingSubPath = null)
     {
         return hostBuilder.ConfigureAppConfiguration((hostBuilderContext, configurationBuilder) =>
         {
-            hostBuilderContext.HostingEnvironment.EnvironmentName =
-                Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+            var removedDefaultEnvironment = configurationBuilder.Sources.FirstOrDefault(f => f is JsonConfigurationSource cnf
+                && cnf.Path != null
+                && cnf.Path.Contains("appsettings.Production.json")
+                );
 
-            configurationBuilder.Sources.Clear();
-            configurationBuilder
-                .AddCommandLine(Environment.GetCommandLineArgs())
-                .AddEnvironmentVariables()
-                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{hostBuilderContext.HostingEnvironment.EnvironmentName}.json", false, true);
+            if (removedDefaultEnvironment != null)
+                configurationBuilder.Sources.Remove(removedDefaultEnvironment);
+
+            var pathAppSetting = (JsonConfigurationSource)configurationBuilder.Sources.First(f => f is JsonConfigurationSource cnf && cnf.Path != null && cnf.Path.Contains("appsettings.json"));
+            pathAppSetting.Path = Path.Combine(appSettingSubPath?.Trim(' ') ?? "", "appsettings.json");
+
+            string? env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            hostBuilderContext.HostingEnvironment.EnvironmentName = string.IsNullOrWhiteSpace(env) ? "Development" : env;
+
+            configurationBuilder.AddCommandLine(Environment.GetCommandLineArgs()).AddEnvironmentVariables();
 
             configureDelegate?.Invoke(hostBuilderContext, configurationBuilder);
+
+            var pathEnvFile = Path.Combine(appSettingSubPath?.Trim(' ') ?? "", $"appsettings.{hostBuilderContext.HostingEnvironment.EnvironmentName}.json");
+            configurationBuilder.AddJsonFile(pathEnvFile, optional: true, reloadOnChange: true);
         });
     }
 
     public static IServiceCollection AddAppZeroConfiguration(this IServiceCollection services, params Type[] appSettingSectionTypes)
     {
-        foreach (var appSetting in appSettingSectionTypes.Distinct())
+        foreach (var appSettingType in appSettingSectionTypes.Distinct())
         {
-            services
-                .AddSingleton(appSetting, (provider) => provider.GetRequiredService<IConfiguration>().GetSection(appSetting.Name).Get(appSetting));
+            services.AddSingleton(appSettingType, (provider) =>
+                    provider.GetRequiredService<IConfiguration>().GetSection(appSettingType.Name).Get(appSettingType));
         }
+
         return services;
     }
 }
