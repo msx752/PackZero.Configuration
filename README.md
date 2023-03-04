@@ -2,7 +2,6 @@
 [![CodeQL](https://github.com/msx752/PackZero.Configuration/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/msx752/PackZero.Configuration/actions/workflows/codeql.yml)
 [![MIT](https://img.shields.io/badge/License-MIT-blue.svg?maxAge=259200)](https://github.com/msx752/PackZero.Configuration/blob/main/LICENSE.md)
 
-
 # PackZero.Configuration
 extension for the IConfiguration, appsettings.json mapping easily used class object rely on EnvironmentName (especially for the ConsoleApp)
 
