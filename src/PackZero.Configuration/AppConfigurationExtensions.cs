@@ -7,7 +7,7 @@ public static class AppConfigurationExtensions
         return hostBuilder.UseAppZeroConfiguration(null);
     }
 
-    public static IHostBuilder UseAppZeroConfiguration(this IHostBuilder hostBuilder, Action<HostBuilderContext, IConfigurationBuilder> configureDelegate)
+    public static IHostBuilder UseAppZeroConfiguration(this IHostBuilder hostBuilder, Action<HostBuilderContext, IConfigurationBuilder> configureDelegate, string appSettingSubPath = null)
     {
         return hostBuilder.ConfigureAppConfiguration((hostBuilderContext, configurationBuilder) =>
         {
@@ -19,6 +19,9 @@ public static class AppConfigurationExtensions
             if (removedDefaultEnvironment != null)
                 configurationBuilder.Sources.Remove(removedDefaultEnvironment);
 
+            var pathAppSetting = (JsonConfigurationSource)configurationBuilder.Sources.First(f => f is JsonConfigurationSource cnf && cnf.Path != null && cnf.Path.Contains("appsettings.json"));
+            pathAppSetting.Path = Path.Combine(appSettingSubPath?.Trim(' ') ?? "", "appsettings.json");
+
             string? env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             hostBuilderContext.HostingEnvironment.EnvironmentName = string.IsNullOrWhiteSpace(env) ? "Development" : env;
 
@@ -26,7 +29,8 @@ public static class AppConfigurationExtensions
 
             configureDelegate?.Invoke(hostBuilderContext, configurationBuilder);
 
-            configurationBuilder.AddJsonFile($"appsettings.{hostBuilderContext.HostingEnvironment.EnvironmentName}.json", optional: true, reloadOnChange: true);
+            var pathEnvFile = Path.Combine(appSettingSubPath?.Trim(' ') ?? "", $"appsettings.{hostBuilderContext.HostingEnvironment.EnvironmentName}.json");
+            configurationBuilder.AddJsonFile(pathEnvFile, optional: true, reloadOnChange: true);
         });
     }
 
@@ -35,12 +39,7 @@ public static class AppConfigurationExtensions
         foreach (var appSettingType in appSettingSectionTypes.Distinct())
         {
             services.AddSingleton(appSettingType, (provider) =>
-            {
-                var sectionObject = provider.GetRequiredService<IConfiguration>().GetSection(appSettingType.Name).Get(appSettingType);
-                ArgumentNullException.ThrowIfNull(sectionObject, $"Configuration.GetSection('{appSettingType.Name}') returns null");
-
-                return sectionObject;
-            });
+                    provider.GetRequiredService<IConfiguration>().GetSection(appSettingType.Name).Get(appSettingType));
         }
 
         return services;
