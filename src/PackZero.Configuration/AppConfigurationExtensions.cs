@@ -11,28 +11,31 @@ public static class AppConfigurationExtensions
     {
         return hostBuilder.ConfigureAppConfiguration((hostBuilderContext, configurationBuilder) =>
         {
-            hostBuilderContext.HostingEnvironment.EnvironmentName =
-                Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+            var removedDefaultEnvironment = configurationBuilder.Sources.FirstOrDefault(f => f is Microsoft.Extensions.Configuration.Json.JsonConfigurationSource cnf
+                && cnf.Path != null
+                && cnf.Path.Contains("appsettings.Production.json")
+                );
 
-            configurationBuilder.Sources.Clear();
-            configurationBuilder
-                .AddCommandLine(Environment.GetCommandLineArgs())
-                .AddEnvironmentVariables()
-                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{hostBuilderContext.HostingEnvironment.EnvironmentName}.json", false, true);
+            if (removedDefaultEnvironment != null)
+                configurationBuilder.Sources.Remove(removedDefaultEnvironment);
+
+            string? env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            hostBuilderContext.HostingEnvironment.EnvironmentName = string.IsNullOrWhiteSpace(env) ? "Development" : env;
+
+            configurationBuilder.AddCommandLine(Environment.GetCommandLineArgs()).AddEnvironmentVariables();
 
             configureDelegate?.Invoke(hostBuilderContext, configurationBuilder);
+
+            configurationBuilder.AddJsonFile($"appsettings.{hostBuilderContext.HostingEnvironment.EnvironmentName}.json", optional: true, reloadOnChange: true);
         });
     }
 
     public static IServiceCollection AddAppZeroConfiguration(this IServiceCollection services, params Type[] appSettingSectionTypes)
     {
-        foreach (var appSetting in appSettingSectionTypes.Distinct())
-        {
-            services
-                .AddSingleton(appSetting, (provider) => provider.GetRequiredService<IConfiguration>().GetSection(appSetting.Name).Get(appSetting));
-        }
+        foreach (var appSettingType in appSettingSectionTypes.Distinct())
+            services.AddSingleton(appSettingType, (provider) =>
+                provider.GetRequiredService<IConfiguration>().GetSection(appSettingType.Name).Get(appSettingType));
+
         return services;
     }
 }

@@ -30,6 +30,7 @@
 		<PublishRepositoryUrl>True</PublishRepositoryUrl>
 		<ContinuousIntegrationBuild>True</ContinuousIntegrationBuild>
 		<EmbedUntrackedSources>True</EmbedUntrackedSources>
+		<Version>1.0.1</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
